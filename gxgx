@@ -316,7 +316,7 @@ function DetailPage({ section, onModuleOpen }) {
       <div className="mt-6 flex items-center justify-between">
         <div>
           <h2 className="text-xl font-black text-slate-950">常用模块</h2>
-          <p className="mt-1 text-sm text-slate-500">点击模块查看可配置内容</p>
+          <p className="mt-1 text-sm text-slate-500">点击模块查看可配置内容</p> 
         </div>
         <WalletCards className="text-slate-400" size={22} />
       </div>

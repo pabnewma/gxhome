@@ -1,0 +1,452 @@
+import React, { useMemo, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  CalendarDays,
+  ChevronLeft,
+  ChevronRight,
+  Calculator,
+  Newspaper,
+  Gift,
+  MessageSquareText,
+  TrendingUp,
+  Home,
+  Landmark,
+  ShieldCheck,
+  Users,
+  Megaphone,
+  Search,
+  PlusCircle,
+  Star,
+  Clock3,
+  Sparkles,
+  WalletCards,
+} from "lucide-react";
+
+const sections = [
+  {
+    id: "wealth",
+    name: "财富",
+    subtitle: "产品配置、客户经营、资产提升",
+    icon: TrendingUp,
+    gradient: "from-amber-300 via-orange-300 to-rose-300",
+    accent: "bg-amber-50 text-amber-700",
+    description: "适合财富经理、理财经理日常使用，沉淀产品卖点、市场观点、客户配置建议。",
+  },
+  {
+    id: "loan",
+    name: "个贷",
+    subtitle: "房贷、消费贷、经营贷获客转化",
+    icon: Home,
+    gradient: "from-sky-300 via-cyan-300 to-teal-300",
+    accent: "bg-sky-50 text-sky-700",
+    description: "适合个贷客户经理快速测算、查询政策、沉淀获客话术与活动安排。",
+  },
+  {
+    id: "ops",
+    name: "运营",
+    subtitle: "厅堂服务、合规流程、效率工具",
+    icon: ShieldCheck,
+    gradient: "from-indigo-300 via-violet-300 to-fuchsia-300",
+    accent: "bg-indigo-50 text-indigo-700",
+    description: "适合运营主管、柜面与厅堂团队使用，统一流程提示、服务标准与重点任务。",
+  },
+  {
+    id: "synergy",
+    name: "综拓",
+    subtitle: "交叉销售、场景协同、转介跟进",
+    icon: Users,
+    gradient: "from-emerald-300 via-green-300 to-lime-300",
+    accent: "bg-emerald-50 text-emerald-700",
+    description: "适合推动保险、信用卡、企业微信、代发等跨条线协同经营。",
+  },
+  {
+    id: "market",
+    name: "市场",
+    subtitle: "外拓活动、商圈经营、品牌获客",
+    icon: Megaphone,
+    gradient: "from-pink-300 via-rose-300 to-red-300",
+    accent: "bg-pink-50 text-pink-700",
+    description: "适合市场经理与网点负责人管理活动、物料、权益、商户合作与宣传节奏。",
+  },
+];
+
+const modules = [
+  {
+    id: "calculator",
+    name: "计算器",
+    icon: Calculator,
+    short: "收益、贷款、转化率等测算",
+    tag: "工具",
+  },
+  {
+    id: "news",
+    name: "最新市场资讯",
+    icon: Newspaper,
+    short: "每日观点、政策、竞品动态",
+    tag: "资讯",
+  },
+  {
+    id: "calendar",
+    name: "活动日历",
+    icon: CalendarDays,
+    short: "网点活动、外拓安排、节点提醒",
+    tag: "日程",
+  },
+  {
+    id: "benefits",
+    name: "权益点点看",
+    icon: Gift,
+    short: "客户权益、优惠活动、礼品清单",
+    tag: "权益",
+  },
+  {
+    id: "scripts",
+    name: "营销话术",
+    icon: MessageSquareText,
+    short: "场景话术、异议处理、跟进模板",
+    tag: "话术",
+  },
+];
+
+const sampleContent = {
+  wealth: {
+    calculator: ["理财收益测算器", "客户资产提升目标拆解", "基金定投金额规划"],
+    news: ["每日市场晨会纪要", "本周权益市场观点", "重点产品卖点速览"],
+    calendar: ["高净值客户沙龙", "基金定投主题日", "养老金融宣讲会"],
+    benefits: ["贵宾客户生日权益", "财富客户专属体检权益", "积分兑换专区"],
+    scripts: ["存款到期承接话术", "基金亏损安抚话术", "资产配置开场白"],
+  },
+  loan: {
+    calculator: ["房贷月供测算", "消费贷额度测算", "提前还款影响测算"],
+    news: ["本地房贷政策更新", "普惠金融政策提示", "重点楼盘动态"],
+    calendar: ["楼盘驻点排班", "个贷客户回访日", "商户经营贷外拓"],
+    benefits: ["按揭客户权益包", "装修贷合作商户优惠", "车位贷活动权益"],
+    scripts: ["房贷客户加微话术", "经营贷需求挖掘", "提前还款挽留话术"],
+  },
+  ops: {
+    calculator: ["厅堂分流效率测算", "排队时长测算", "网点服务评分拆解"],
+    news: ["监管提示与风险案例", "运营流程更新", "反诈宣传素材"],
+    calendar: ["合规学习日", "厅堂服务演练", "反诈宣传进社区"],
+    benefits: ["厅堂客户便民服务", "适老服务清单", "客户等候关怀权益"],
+    scripts: ["厅堂迎客话术", "风险提示话术", "客户投诉安抚话术"],
+  },
+  synergy: {
+    calculator: ["转介成功率测算", "综拓产能看板", "客户贡献度测算"],
+    news: ["信用卡活动更新", "保险产品重点提示", "代发客户经营政策"],
+    calendar: ["综拓晨会安排", "联合外拓活动", "重点客户转介复盘"],
+    benefits: ["信用卡新户礼", "保险客户权益", "代发企业员工福利"],
+    scripts: ["信用卡激活话术", "保险需求沟通", "代发客户二次经营"],
+  },
+  market: {
+    calculator: ["活动 ROI 测算", "地推线索转化测算", "商圈客户潜力测算"],
+    news: ["同业活动观察", "本地商圈热点", "节日营销节点提醒"],
+    calendar: ["社区外拓日历", "商户联盟活动", "亲子主题活动"],
+    benefits: ["商户优惠清单", "到店礼权益", "客户裂变奖励"],
+    scripts: ["社区陌拜开场白", "商户合作洽谈", "活动邀约短信模板"],
+  },
+};
+
+function Header({ activeSection, onBack }) {
+  return (
+    <div className="sticky top-0 z-30 border-b border-white/50 bg-white/80 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-md items-center gap-3 px-4 py-3">
+        {activeSection ? (
+          <button
+            onClick={onBack}
+            className="grid h-10 w-10 place-items-center rounded-2xl bg-slate-100 text-slate-700 active:scale-95"
+          >
+            <ChevronLeft size={20} />
+          </button>
+        ) : (
+          <div className="grid h-10 w-10 place-items-center rounded-2xl bg-slate-900 text-white shadow-lg shadow-slate-900/20">
+            <Landmark size={20} />
+          </div>
+        )}
+        <div className="min-w-0 flex-1">
+          <div className="truncate text-sm text-slate-500">支行零售队伍赋能平台</div>
+          <div className="truncate text-lg font-bold text-slate-950">
+            {activeSection ? `${activeSection.name}工作台` : "掌上营销助手"}
+          </div>
+        </div>
+        <button className="grid h-10 w-10 place-items-center rounded-2xl bg-slate-100 text-slate-700 active:scale-95">
+          <Search size={19} />
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function Hero() {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 14 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="relative overflow-hidden rounded-[2rem] bg-slate-950 p-5 text-white shadow-2xl shadow-slate-900/25"
+    >
+      <div className="absolute -right-10 -top-12 h-36 w-36 rounded-full bg-cyan-300/30 blur-2xl" />
+      <div className="absolute -bottom-16 left-8 h-40 w-40 rounded-full bg-amber-300/20 blur-3xl" />
+      <div className="relative">
+        <div className="mb-5 inline-flex items-center gap-2 rounded-full bg-white/10 px-3 py-1 text-xs text-white/85 ring-1 ring-white/15">
+          <Sparkles size={14} />
+          一线队伍随手查、随手算、随手用
+        </div>
+        <h1 className="text-3xl font-black leading-tight tracking-tight">让每位客户经理都有一个手机里的零售工具箱</h1>
+        <p className="mt-3 text-sm leading-6 text-slate-300">
+          聚合财富、个贷、运营、综拓、市场五大板块，后续可持续添加计算器、资讯、活动、权益与话术内容。
+        </p>
+        <div className="mt-5 grid grid-cols-3 gap-2 text-center">
+          {[
+            ["5", "业务板块"],
+            ["25", "模块入口"],
+            ["∞", "可扩展内容"],
+          ].map(([num, label]) => (
+            <div key={label} className="rounded-2xl bg-white/10 p-3 ring-1 ring-white/10">
+              <div className="text-xl font-black">{num}</div>
+              <div className="mt-1 text-[11px] text-slate-300">{label}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+function SectionCard({ section, index, onOpen }) {
+  const Icon = section.icon;
+  return (
+    <motion.button
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.06 }}
+      onClick={() => onOpen(section.id)}
+      className="group relative w-full overflow-hidden rounded-[1.6rem] bg-white p-4 text-left shadow-sm ring-1 ring-slate-100 active:scale-[0.99]"
+    >
+      <div className={`absolute inset-x-0 top-0 h-1.5 bg-gradient-to-r ${section.gradient}`} />
+      <div className="flex items-center gap-3">
+        <div className={`grid h-13 w-13 place-items-center rounded-3xl bg-gradient-to-br ${section.gradient} text-slate-950 shadow-lg shadow-slate-200`}>
+          <Icon size={24} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h3 className="text-lg font-black text-slate-950">{section.name}</h3>
+            <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${section.accent}`}>推荐</span>
+          </div>
+          <p className="mt-1 truncate text-sm text-slate-500">{section.subtitle}</p>
+        </div>
+        <ChevronRight className="text-slate-300 transition group-hover:translate-x-1" size={20} />
+      </div>
+    </motion.button>
+  );
+}
+
+function ModuleCard({ module, section, onOpen }) {
+  const Icon = module.icon;
+  return (
+    <motion.button
+      layout
+      onClick={() => onOpen(module)}
+      className="rounded-[1.5rem] bg-white p-4 text-left shadow-sm ring-1 ring-slate-100 active:scale-[0.99]"
+    >
+      <div className="flex items-start gap-3">
+        <div className={`grid h-12 w-12 shrink-0 place-items-center rounded-2xl ${section.accent}`}>
+          <Icon size={22} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center justify-between gap-2">
+            <h3 className="font-black text-slate-950">{module.name}</h3>
+            <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-semibold text-slate-500">{module.tag}</span>
+          </div>
+          <p className="mt-1 text-sm leading-5 text-slate-500">{module.short}</p>
+        </div>
+      </div>
+    </motion.button>
+  );
+}
+
+function EmptyAddCard() {
+  return (
+    <div className="rounded-[1.5rem] border border-dashed border-slate-300 bg-white/70 p-4 text-center">
+      <div className="mx-auto grid h-11 w-11 place-items-center rounded-2xl bg-slate-100 text-slate-500">
+        <PlusCircle size={22} />
+      </div>
+      <div className="mt-2 font-bold text-slate-700">后续添加内容</div>
+      <p className="mt-1 text-xs leading-5 text-slate-500">可接入文档、表格、链接、图片、视频、表单或内部系统入口。</p>
+    </div>
+  );
+}
+
+function HomePage({ onOpen }) {
+  return (
+    <main className="mx-auto max-w-md px-4 pb-28 pt-4">
+      <Hero />
+      <div className="mt-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-black text-slate-950">五大业务板块</h2>
+          <p className="mt-1 text-sm text-slate-500">选择一个板块进入工作台</p>
+        </div>
+        <div className="rounded-full bg-white px-3 py-1 text-xs font-bold text-slate-600 shadow-sm ring-1 ring-slate-100">手机端</div>
+      </div>
+      <div className="mt-4 grid gap-3">
+        {sections.map((section, index) => (
+          <SectionCard key={section.id} section={section} index={index} onOpen={onOpen} />
+        ))}
+      </div>
+    </main>
+  );
+}
+
+function DetailPage({ section, onModuleOpen }) {
+  return (
+    <main className="mx-auto max-w-md px-4 pb-28 pt-4">
+      <motion.div
+        initial={{ opacity: 0, y: 12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className={`relative overflow-hidden rounded-[2rem] bg-gradient-to-br ${section.gradient} p-5 shadow-xl shadow-slate-200`}
+      >
+        <div className="absolute -right-8 -top-8 h-28 w-28 rounded-full bg-white/35 blur-xl" />
+        <div className="relative">
+          <div className="grid h-14 w-14 place-items-center rounded-3xl bg-white/60 text-slate-950 ring-1 ring-white/60">
+            <section.icon size={28} />
+          </div>
+          <h1 className="mt-4 text-3xl font-black text-slate-950">{section.name}工作台</h1>
+          <p className="mt-2 text-sm leading-6 text-slate-700">{section.description}</p>
+        </div>
+      </motion.div>
+
+      <div className="mt-6 flex items-center justify-between">
+        <div>
+          <h2 className="text-xl font-black text-slate-950">常用模块</h2>
+          <p className="mt-1 text-sm text-slate-500">点击模块查看可配置内容</p>
+        </div>
+        <WalletCards className="text-slate-400" size={22} />
+      </div>
+
+      <div className="mt-4 grid gap-3">
+        {modules.map((module) => (
+          <ModuleCard key={module.id} module={module} section={section} onOpen={onModuleOpen} />
+        ))}
+        <EmptyAddCard />
+      </div>
+    </main>
+  );
+}
+
+function ModuleSheet({ section, module, onClose }) {
+  const Icon = module.icon;
+  const items = sampleContent[section.id]?.[module.id] || [];
+  return (
+    <AnimatePresence>
+      {module && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 bg-slate-950/40 p-4 backdrop-blur-sm"
+          onClick={onClose}
+        >
+          <motion.div
+            initial={{ y: 420 }}
+            animate={{ y: 0 }}
+            exit={{ y: 420 }}
+            transition={{ type: "spring", damping: 28, stiffness: 260 }}
+            onClick={(e) => e.stopPropagation()}
+            className="absolute inset-x-4 bottom-4 mx-auto max-w-md rounded-[2rem] bg-white p-5 shadow-2xl"
+          >
+            <div className="mx-auto mb-4 h-1.5 w-12 rounded-full bg-slate-200" />
+            <div className="flex items-start gap-3">
+              <div className={`grid h-13 w-13 place-items-center rounded-3xl ${section.accent}`}>
+                <Icon size={24} />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-bold text-slate-400">{section.name}</div>
+                <h3 className="text-2xl font-black text-slate-950">{module.name}</h3>
+                <p className="mt-1 text-sm leading-6 text-slate-500">{module.short}</p>
+              </div>
+            </div>
+
+            <div className="mt-5 space-y-3">
+              {items.map((item, index) => (
+                <div key={item} className="flex items-center gap-3 rounded-2xl bg-slate-50 p-3 ring-1 ring-slate-100">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-white text-slate-500 shadow-sm">
+                    {index === 0 ? <Star size={17} /> : index === 1 ? <Clock3 size={17} /> : <ChevronRight size={17} />}
+                  </div>
+                  <div className="flex-1 text-sm font-bold text-slate-700">{item}</div>
+                  <span className="rounded-full bg-white px-2 py-1 text-[10px] font-bold text-slate-400 ring-1 ring-slate-100">示例</span>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-4 rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
+              <div className="flex items-center gap-2 font-black text-slate-800">
+                <PlusCircle size={18} />
+                后期内容扩展区
+              </div>
+              <p className="mt-2 text-xs leading-5 text-slate-500">
+                这里可以继续添加：网页链接、产品资料、PDF、图片海报、视频课程、客户清单、活动报名表、在线表单或内部系统入口。
+              </p>
+            </div>
+
+            <button
+              onClick={onClose}
+              className="mt-5 h-12 w-full rounded-2xl bg-slate-950 font-bold text-white shadow-lg shadow-slate-900/20 active:scale-[0.99]"
+            >
+              关闭
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+}
+
+function BottomNav({ activeSection, onHome }) {
+  return (
+    <div className="fixed inset-x-0 bottom-0 z-40 border-t border-white/70 bg-white/85 px-4 pb-4 pt-2 backdrop-blur-xl">
+      <div className="mx-auto grid max-w-md grid-cols-3 gap-2 rounded-3xl bg-slate-100 p-1">
+        <button onClick={onHome} className={`rounded-2xl px-3 py-2 text-xs font-black ${!activeSection ? "bg-white text-slate-950 shadow-sm" : "text-slate-500"}`}>
+          首页
+        </button>
+        <button className={`rounded-2xl px-3 py-2 text-xs font-black ${activeSection ? "bg-white text-slate-950 shadow-sm" : "text-slate-500"}`}>
+          工作台
+        </button>
+        <button className="rounded-2xl px-3 py-2 text-xs font-black text-slate-500">我的</button>
+      </div>
+    </div>
+  );
+}
+
+export default function BranchRetailMobileSite() {
+  const [activeSectionId, setActiveSectionId] = useState(null);
+  const [activeModule, setActiveModule] = useState(null);
+
+  const activeSection = useMemo(
+    () => sections.find((section) => section.id === activeSectionId) || null,
+    [activeSectionId]
+  );
+
+  const goHome = () => {
+    setActiveSectionId(null);
+    setActiveModule(null);
+  };
+
+  return (
+    <div className="min-h-screen bg-[radial-gradient(circle_at_top_left,#e0f2fe,transparent_32%),linear-gradient(180deg,#f8fafc,#eef2ff)] font-sans text-slate-900">
+      <Header activeSection={activeSection} onBack={goHome} />
+      <AnimatePresence mode="wait">
+        {!activeSection ? (
+          <motion.div key="home" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <HomePage onOpen={setActiveSectionId} />
+          </motion.div>
+        ) : (
+          <motion.div key={activeSection.id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            <DetailPage section={activeSection} onModuleOpen={setActiveModule} />
+          </motion.div>
+        )}
+      </AnimatePresence>
+      {activeSection && activeModule && (
+        <ModuleSheet section={activeSection} module={activeModule} onClose={() => setActiveModule(null)} />
+      )}
+      <BottomNav activeSection={activeSection} onHome={goHome} />
+    </div>
+  );
+}
